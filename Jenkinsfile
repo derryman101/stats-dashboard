@@ -3,9 +3,12 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'  // Change to your AWS region
-        ECR_REGISTRY = credentials('aws-account-id')  // AWS Account ID
+        ECR_REGISTRY = credentials('992382778976')  // AWS Account ID
         IMAGE_NAME = 'stats-dashboard'
         IMAGE_TAG = "${BUILD_ID}"
+	DEPLOYMENT_KEY = '/var/lib/jenkins/.ssh/Berryman.pem'
+	DEPLOYMENT_USER = 'ec2-user'
+	 DEPLOYMENT_HOST = '3.84.53.134'
     }
 
     stages {
@@ -94,4 +97,3 @@ pipeline {
             echo '========== Pipeline failed! =========='
         }
     }
-}
