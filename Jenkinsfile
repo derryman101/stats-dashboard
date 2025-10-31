@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'  // Change to your AWS region
-        ECR_REGISTRY = credentials('992382778976')  // AWS Account ID
+        AWS_REGION = 'us-east-1'
+        ECR_REGISTRY = '992382778976'
         IMAGE_NAME = 'stats-dashboard'
         IMAGE_TAG = "${BUILD_ID}"
-	DEPLOYMENT_KEY = '/var/lib/jenkins/.ssh/Berryman.pem'
-	DEPLOYMENT_USER = 'ec2-user'
-	 DEPLOYMENT_HOST = '3.84.53.134'
+        DEPLOYMENT_KEY = '/var/lib/jenkins/.ssh/Berryman.pem'
+        DEPLOYMENT_USER = 'ec2-user'
+        DEPLOYMENT_HOST = '3.84.53.134'
     }
 
     stages {
@@ -73,14 +73,10 @@ pipeline {
             steps {
                 echo '========== Deploying to EC2 instance =========='
                 sh '''
-                    # This assumes you have SSH key configured
-                    # Stop running container if exists
-                    ssh -i your-key.pem ec2-user@your-ec2-instance-ip "docker stop stats-dashboard || true"
-                    ssh -i your-key.pem ec2-user@your-ec2-instance-ip "docker rm stats-dashboard || true"
-                    
-                    # Pull and run new container
-                    ssh -i your-key.pem ec2-user@your-ec2-instance-ip "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-                    ssh -i your-key.pem ec2-user@your-ec2-instance-ip "docker run -d --name stats-dashboard -p 80:80 ${ECR_REGISTRY}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${IMAGE_TAG}"
+                    ssh -i ${DEPLOYMENT_KEY} ${DEPLOYMENT_USER}@${DEPLOYMENT_HOST} "docker stop stats-dashboard || true"
+                    ssh -i ${DEPLOYMENT_KEY} ${DEPLOYMENT_USER}@${DEPLOYMENT_HOST} "docker rm stats-dashboard || true"
+                    ssh -i ${DEPLOYMENT_KEY} ${DEPLOYMENT_USER}@${DEPLOYMENT_HOST} "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                    ssh -i ${DEPLOYMENT_KEY} ${DEPLOYMENT_USER}@${DEPLOYMENT_HOST} "docker run -d --name stats-dashboard -p 80:80 ${ECR_REGISTRY}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${IMAGE_TAG}"
                 '''
             }
         }
@@ -97,3 +93,4 @@ pipeline {
             echo '========== Pipeline failed! =========='
         }
     }
+}
